@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.koto.kmp_bookpedia.book.domain.Book
 import com.koto.kmp_bookpedia.core.presentation.LightBlue
+import com.koto.kmp_bookpedia.core.presentation.PulseAnimation
 import com.koto.kmp_bookpedia.core.presentation.SandYellow
 import kmp_bookpedia.composeapp.generated.resources.Res
 import kmp_bookpedia.composeapp.generated.resources.book_error_2
@@ -86,7 +86,7 @@ fun BookListItem(
                 )
 
                 when (val result = imageLoadResult) {
-                    null -> CircularProgressIndicator()
+                    null -> PulseAnimation(modifier = Modifier.size(60.dp))
                     else -> {
                         Image(
                             modifier = Modifier
