@@ -1,7 +1,9 @@
 package com.koto.kmp_bookpedia.di
 
+import com.koto.kmp_bookpedia.book.data.database.DatabaseFactory
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -10,4 +12,6 @@ actual val platformModule: Module
         single<HttpClientEngine> { OkHttp.create() }
         // alternative:
         // single { OkHttp.create() }.bind<HttpClientEngine>()
+
+        single { DatabaseFactory(androidApplication()) }
     }
