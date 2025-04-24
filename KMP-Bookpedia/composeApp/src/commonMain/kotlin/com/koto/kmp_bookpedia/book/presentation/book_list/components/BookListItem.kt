@@ -1,5 +1,7 @@
 package com.koto.kmp_bookpedia.book.presentation.book_list.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,10 +30,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.koto.kmp_bookpedia.book.domain.Book
 import com.koto.kmp_bookpedia.core.presentation.LightBlue
@@ -73,16 +78,27 @@ fun BookListItem(
                 val painter = rememberAsyncImagePainter(
                     model = book.imageUrl,
                     onSuccess = {
-                        imageLoadResult = if (it.painter.intrinsicSize.width > 1 && it.painter.intrinsicSize.height > 1) {
-                            Result.success(it.painter)
-                        } else {
-                            Result.failure(Exception("Invalid image size"))
-                        }
+                        imageLoadResult =
+                            if (it.painter.intrinsicSize.width > 1 && it.painter.intrinsicSize.height > 1) {
+                                Result.success(it.painter)
+                            } else {
+                                Result.failure(Exception("Invalid image size"))
+                            }
                     },
                     onError = {
                         it.result.throwable.printStackTrace()
                         imageLoadResult = Result.failure(it.result.throwable)
                     }
+                )
+
+                val painterState by painter.state.collectAsStateWithLifecycle()
+                val transition by animateFloatAsState(
+                    targetValue = if (painterState is AsyncImagePainter.State.Success) {
+                        1f
+                    } else {
+                        0f
+                    },
+                    animationSpec = tween(800)
                 )
 
                 when (val result = imageLoadResult) {
@@ -93,7 +109,13 @@ fun BookListItem(
                                 .aspectRatio(
                                     ratio = 0.65f,
                                     matchHeightConstraintsFirst = true,
-                                ),
+                                )
+                                .graphicsLayer {
+                                    rotationX = (1f - transition) * 30f
+                                    val scale = 0.8f + (0.2f * transition)
+                                    scaleX = scale
+                                    scaleY = scale
+                                },
                             painter = if (result.isSuccess) painter else painterResource(Res.drawable.book_error_2),
                             contentDescription = book.title,
                             contentScale = if (result.isSuccess) ContentScale.Crop else ContentScale.Fit,
